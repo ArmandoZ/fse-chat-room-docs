@@ -60,20 +60,9 @@ Projects list
 
     **Example request**:
 
-    .. tabs::
+    .. sourcecode:: bash
 
-        .. code-tab:: bash
-
-            $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/
-
-        .. code-tab:: python
-
-            import requests
-            URL = 'https://readthedocs.org/api/v3/projects/'
-            TOKEN = '<token>'
-            HEADERS = {'Authorization': f'token {TOKEN}'}
-            response = requests.get(URL, headers=HEADERS)
-            print(response.json())
+      $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/
 
     **Example response**:
 
@@ -178,30 +167,14 @@ Version update
 
     **Example request**:
 
-    .. tabs::
+   .. sourcecode:: bash
 
-        .. code-tab:: bash
+      $ curl \
+        -X PATCH \
+        -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/versions/0.23/ \
+        -H "Content-Type: application/json" \
+        -d @body.json
 
-            $ curl \
-              -X PATCH \
-              -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/versions/0.23/ \
-              -H "Content-Type: application/json" \
-              -d @body.json
-
-        .. code-tab:: python
-
-            import requests
-            import json
-            URL = 'https://readthedocs.org/api/v3/projects/pip/versions/0.23/'
-            TOKEN = '<token>'
-            HEADERS = {'Authorization': f'token {TOKEN}'}
-            data = json.load(open('body.json', 'rb'))
-            response = requests.patch(
-                URL,
-                json=data,
-                headers=HEADERS,
-            )
-            print(response.json())
 
     The content of ``body.json`` is like,
 
