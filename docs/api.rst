@@ -1,7 +1,7 @@
 API (Under Design)
 ======
 
-Current draft design of api
+Current draft design of api v0
 
 .. contents:: Table of contents
    :local:
