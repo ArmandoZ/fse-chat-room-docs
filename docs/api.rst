@@ -51,87 +51,146 @@ There are some URL attributes that applies to all of these resources:
 Projects
 ~~~~~~~~
 
-Projects list
-+++++++++++++
 
-.. http:get:: /api/v3/projects/
+Build triggering
+++++++++++++++++
 
-    Retrieve a list of all the projects for the current logged in user.
+
+.. http:post:: /api/v3/projects/(string:project_slug)/versions/(string:version_slug)/builds/
+
+    Trigger a new build for the ``version_slug`` version of this project.
 
     **Example request**:
 
-    .. sourcecode:: bash
+     .. sourcecode:: bash
 
-      $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/
+         $ curl \
+           -X POST \
+           -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/versions/latest/builds/
+
 
     **Example response**:
 
     .. sourcecode:: json
 
         {
-            "count": 25,
-            "next": "/api/v3/projects/?limit=10&offset=10",
-            "previous": null,
-            "results": [{
-                "id": 12345,
-                "name": "Pip",
-                "slug": "pip",
-                "created": "2010-10-23T18:12:31+00:00",
-                "modified": "2018-12-11T07:21:11+00:00",
-                "language": {
-                    "code": "en",
-                    "name": "English"
-                },
-                "programming_language": {
-                    "code": "py",
-                    "name": "Python"
-                },
-                "repository": {
-                    "url": "https://github.com/pypa/pip",
-                    "type": "git"
-                },
-                "default_version": "stable",
-                "default_branch": "master",
-                "subproject_of": null,
-                "translation_of": null,
-                "urls": {
-                    "documentation": "http://pip.pypa.io/en/stable/",
-                    "home": "https://pip.pypa.io/"
-                },
-                "tags": [
-                    "distutils",
-                    "easy_install",
-                    "egg",
-                    "setuptools",
-                    "virtualenv"
-                ],
-                "users": [
-                    {
-                        "username": "dstufft"
-                    }
-                ],
-                "active_versions": {
-                    "stable": "{VERSION}",
-                    "latest": "{VERSION}",
-                    "19.0.2": "{VERSION}"
-                },
-                "_links": {
-                    "_self": "/api/v3/projects/pip/",
-                    "versions": "/api/v3/projects/pip/versions/",
-                    "builds": "/api/v3/projects/pip/builds/",
-                    "subprojects": "/api/v3/projects/pip/subprojects/",
-                    "superproject": "/api/v3/projects/pip/superproject/",
-                    "redirects": "/api/v3/projects/pip/redirects/",
-                    "translations": "/api/v3/projects/pip/translations/"
-                }
-            }]
+            "build": "{BUILD}",
+            "project": "{PROJECT}",
+            "version": "{VERSION}"
         }
 
-    :query string language: language code as ``en``, ``es``, ``ru``, etc.
-    :query string programming_language: programming language code as ``py``, ``js``, etc.
+    :statuscode 202: the build was triggered
 
-    The ``results`` in response is an array of project data,
-    which is same as :http:get:`/api/v3/projects/(string:project_slug)/`.
+
+Redirect update
++++++++++++++++
+
+.. http:put:: /api/v3/projects/(str:project_slug)/redirects/(int:redirect_id)/
+
+    Update a redirect for this project.
+
+    **Example request**:
+
+     .. sourcecode:: bash
+
+         $ curl \
+           -X PUT \
+           -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/redirects/1/ \
+           -H "Content-Type: application/json" \
+           -d @body.json
+
+    The content of ``body.json`` is like,
+
+    .. sourcecode:: json
+
+        {
+            "from_url": "/docs/",
+            "to_url": "/documentation.html",
+            "type": "page"
+        }
+
+    **Example response**:
+
+    `See Redirect details <#redirect-details>`_
+
+
+
+Project details
++++++++++++++++
+
+.. http:get:: /api/v3/projects/(string:project_slug)/
+
+    Retrieve details of a single project.
+
+    **Example request**:
+
+
+    .. sourcecode:: bash
+
+       $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/
+
+
+    **Example response**:
+
+    .. sourcecode:: json
+
+        {
+            "id": 12345,
+            "name": "Pip",
+            "slug": "pip",
+            "created": "2010-10-23T18:12:31+00:00",
+            "modified": "2018-12-11T07:21:11+00:00",
+            "language": {
+                "code": "en",
+                "name": "English"
+            },
+            "programming_language": {
+                "code": "py",
+                "name": "Python"
+            },
+            "repository": {
+                "url": "https://github.com/pypa/pip",
+                "type": "git"
+            },
+            "default_version": "stable",
+            "default_branch": "master",
+            "subproject_of": null,
+            "translation_of": null,
+            "urls": {
+                "documentation": "http://pip.pypa.io/en/stable/",
+                "home": "https://pip.pypa.io/"
+            },
+            "tags": [
+                "distutils",
+                "easy_install",
+                "egg",
+                "setuptools",
+                "virtualenv"
+            ],
+            "users": [
+                {
+                    "username": "dstufft"
+                }
+            ],
+            "active_versions": {
+                "stable": "{VERSION}",
+                "latest": "{VERSION}",
+                "19.0.2": "{VERSION}"
+            },
+            "_links": {
+                "_self": "/api/v3/projects/pip/",
+                "versions": "/api/v3/projects/pip/versions/",
+                "builds": "/api/v3/projects/pip/builds/",
+                "subprojects": "/api/v3/projects/pip/subprojects/",
+                "superproject": "/api/v3/projects/pip/superproject/",
+                "redirects": "/api/v3/projects/pip/redirects/",
+                "translations": "/api/v3/projects/pip/translations/"
+            }
+        }
+
+    :query string expand: allows to add/expand some extra fields in the response.
+                          Allowed values are ``active_versions``, ``active_versions.last_build`` and
+                          ``active_versions.last_build.config``. Multiple fields can be passed separated by commas.
 
     .. note::
 
@@ -145,45 +204,48 @@ Projects list
 
 
 
+Versions listing
+++++++++++++++++
 
-Versions
-~~~~~~~~
+.. http:get:: /api/v3/projects/(string:project_slug)/versions/
 
-Versions are different versions of the same project documentation.
-
-The versions for a given project can be viewed in a project's version page.
-For example, here is the `Pip project's version page`_.
-See :doc:`/versions` for more information.
-
-.. _Pip project's version page: https://readthedocs.org/projects/pip/versions/
-
-
-Version update
-++++++++++++++
-
-.. http:patch:: /api/v3/projects/(string:project_slug)/versions/(string:version_slug)/
-
-    Update a version.
+    Retrieve a list of all versions for a project.
 
     **Example request**:
 
-   .. sourcecode:: bash
+    .. tabs::
 
-      $ curl \
-        -X PATCH \
-        -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/versions/0.23/ \
-        -H "Content-Type: application/json" \
-        -d @body.json
+        .. code-tab:: bash
 
+            $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/versions/
 
-    The content of ``body.json`` is like,
+        .. code-tab:: python
+
+            import requests
+            URL = 'https://readthedocs.org/api/v3/projects/pip/versions/'
+            TOKEN = '<token>'
+            HEADERS = {'Authorization': f'token {TOKEN}'}
+            response = requests.get(URL, headers=HEADERS)
+            print(response.json())
+
+    **Example response**:
 
     .. sourcecode:: json
 
         {
-            "active": true,
-            "hidden": false
+            "count": 25,
+            "next": "/api/v3/projects/pip/versions/?limit=10&offset=10",
+            "previous": null,
+            "results": ["VERSION"]
         }
 
-    :statuscode 204: Updated successfully
+    :query boolean active: return only active versions
+    :query boolean built: return only built versions
+    :query string privacy_level: return versions with specific privacy level (``public`` or ``private``)
+    :query string slug: return versions with matching slug
+    :query string type: return versions with specific type (``branch`` or ``tag``)
+    :query string verbose_name: return versions with matching version name
+
+
+
 
