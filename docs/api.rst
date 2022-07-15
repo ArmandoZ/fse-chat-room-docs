@@ -9,54 +9,17 @@ Current draft design of api v0
    :depth: 2
 
 
-Authentication and authorization
+User Authentication
 --------------------------------
 
-Requests to the Read the Docs public API are for public and private information.
-All endpoints require authentication.
+APIs about user sign in/up activity.
 
 
-Token
-~~~~~
-
-The ``Authorization`` HTTP header can be specified with ``Token <your-access-token>``
-to authenticate as a user and have the same permissions that the user itself.
-
-
-Resources
----------
-
-This section shows all the resources that are currently available in APIv3.
-There are some URL attributes that applies to all of these resources:
-
-:?fields=:
-
-   Specify which fields are going to be returned in the response.
-
-:?omit=:
-
-   Specify which fields are going to be omitted from the response.
-
-:?expand=:
-
-   Some resources allow to expand/add extra fields on their responses (see `Project details <#project-details>`__ for example).
-
-
-.. note::
-
-   If you are using :doc:`Read the Docs for Business </commercial/index>` take into account that you will need to replace
-   https://readthedocs.org/ by https://readthedocs.com/ in all the URLs used in the following examples.
-
-
-Projects
+Create Session Login Token
 ~~~~~~~~
 
 
-Build triggering
-++++++++++++++++
-
-
-.. http:post:: /api/v3/projects/(string:project_slug)/versions/(string:version_slug)/builds/
+.. http:post:: /api/v1/login/auth
 
     Trigger a new build for the ``version_slug`` version of this project.
 
@@ -82,10 +45,41 @@ Build triggering
     :statuscode 202: the build was triggered
 
 
-Redirect update
-+++++++++++++++
+Create Session Via API Token
+~~~~~~~~
 
-.. http:put:: /api/v3/projects/(str:project_slug)/redirects/(int:redirect_id)/
+
+.. http:post:: /api/v1/login/auth
+
+    Trigger a new build for the ``version_slug`` version of this project.
+
+    **Example request**:
+
+     .. sourcecode:: bash
+
+         $ curl \
+           -X POST \
+           -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/versions/latest/builds/
+
+
+    **Example response**:
+
+    .. sourcecode:: json
+
+        {
+            "build": "{BUILD}",
+            "project": "{PROJECT}",
+            "version": "{VERSION}"
+        }
+
+    :statuscode 202: the build was triggered
+
+
+
+Create User
+~~~~~~~~
+
+.. http:post:: /api/v1/users
 
     Update a redirect for this project.
 
@@ -114,119 +108,70 @@ Redirect update
     `See Redirect details <#redirect-details>`_
 
 
+.. note::
 
-Project details
-+++++++++++++++
+   This is an example note for future use.
 
-.. http:get:: /api/v3/projects/(string:project_slug)/
 
-    Retrieve details of a single project.
+
+Chat Messages
+---------
+
+This section shows all the apis about chat messages that are currently available in APIv3.
+
+
+
+Post a message
+~~~~~~~~
+
+.. http:post:: /api/v1/messages
+
+    Post a message into the chat room.
 
     **Example request**:
 
+     .. sourcecode:: bash
 
-    .. sourcecode:: bash
+         $ curl \
+           -X PUT \
+           -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/redirects/1/ \
+           -H "Content-Type: application/json" \
+           -d @body.json
 
-       $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/
-
-
-    **Example response**:
+    The content of ``body.json`` is like,
 
     .. sourcecode:: json
 
         {
-            "id": 12345,
-            "name": "Pip",
-            "slug": "pip",
-            "created": "2010-10-23T18:12:31+00:00",
-            "modified": "2018-12-11T07:21:11+00:00",
-            "language": {
-                "code": "en",
-                "name": "English"
-            },
-            "programming_language": {
-                "code": "py",
-                "name": "Python"
-            },
-            "repository": {
-                "url": "https://github.com/pypa/pip",
-                "type": "git"
-            },
-            "default_version": "stable",
-            "default_branch": "master",
-            "subproject_of": null,
-            "translation_of": null,
-            "urls": {
-                "documentation": "http://pip.pypa.io/en/stable/",
-                "home": "https://pip.pypa.io/"
-            },
-            "tags": [
-                "distutils",
-                "easy_install",
-                "egg",
-                "setuptools",
-                "virtualenv"
-            ],
-            "users": [
-                {
-                    "username": "dstufft"
-                }
-            ],
-            "active_versions": {
-                "stable": "{VERSION}",
-                "latest": "{VERSION}",
-                "19.0.2": "{VERSION}"
-            },
-            "_links": {
-                "_self": "/api/v3/projects/pip/",
-                "versions": "/api/v3/projects/pip/versions/",
-                "builds": "/api/v3/projects/pip/builds/",
-                "subprojects": "/api/v3/projects/pip/subprojects/",
-                "superproject": "/api/v3/projects/pip/superproject/",
-                "redirects": "/api/v3/projects/pip/redirects/",
-                "translations": "/api/v3/projects/pip/translations/"
-            }
+            "from_url": "/docs/",
+            "to_url": "/documentation.html",
+            "type": "page"
         }
 
-    :query string expand: allows to add/expand some extra fields in the response.
-                          Allowed values are ``active_versions``, ``active_versions.last_build`` and
-                          ``active_versions.last_build.config``. Multiple fields can be passed separated by commas.
+    **Example response**:
 
-    .. note::
+    `See Redirect details <#redirect-details>`_
 
-       .. FIXME: we can't use :query string: here because it doesn't render properly
 
-      :doc:`Read the Docs for Business </commercial/index>`, also accepts
+.. note::
 
-      :Query Parameters:
-
-         * **expand** (*string*) -- with ``organization`` and ``teams``.
+   This is an example note for future use.
 
 
 
-Versions listing
-++++++++++++++++
+Messages listing
+~~~~~~~~
 
-.. http:get:: /api/v3/projects/(string:project_slug)/versions/
+.. http:get:: /api/v3/messages
 
     Retrieve a list of all versions for a project.
 
     **Example request**:
 
-    .. tabs::
+    .. sourcecode:: bash
 
-        .. code-tab:: bash
+        $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/versions/
 
-            $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/versions/
-
-        .. code-tab:: python
-
-            import requests
-            URL = 'https://readthedocs.org/api/v3/projects/pip/versions/'
-            TOKEN = '<token>'
-            HEADERS = {'Authorization': f'token {TOKEN}'}
-            response = requests.get(URL, headers=HEADERS)
-            print(response.json())
 
     **Example response**:
 
